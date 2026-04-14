@@ -1,0 +1,50 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mattlong-plux/hostaway",
+  "description": "Hostaway PMS: reservations, listings, calendars, financials, and guest messaging.",
+  "repository": {
+    "url": "https://github.com/mattlong-plux/hostaway-mcp",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@matt-long-plux/hostaway-mcp",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "HOSTAWAY_ACCOUNT_ID",
+          "description": "Your Hostaway account ID (integer)",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "HOSTAWAY_CLIENT_SECRET",
+          "description": "Your Hostaway API client secret",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "HOSTAWAY_READ_ONLY",
+          "description": "Set to 'true' to disable all write/mutation tools",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "HOSTAWAY_CACHE_TTL",
+          "description": "Token cache TTL in seconds when API doesn't provide expires_in (default: 240)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

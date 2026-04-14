@@ -1,6 +1,7 @@
 {
   "name": "@matt-long-plux/hostaway-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "io.github.mattlong-plux/hostaway",
   "description": "MCP server for the Hostaway vacation rental PMS API",
   "main": "dist/index.cjs",
   "bin": {
