@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hostaway": {
+      "command": "npx",
+      "args": ["-y", "@matt-long-plux/hostaway-mcp"],
+      "env": {
+        "HOSTAWAY_ACCOUNT_ID": "YOUR_ACCOUNT_ID",
+        "HOSTAWAY_CLIENT_SECRET": "YOUR_CLIENT_SECRET"
+      }
+    }
+  }
+}

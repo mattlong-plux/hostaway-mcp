@@ -1,0 +1,9 @@
+src/
+*.env
+.env.*
+examples/
+tsconfig.json
+tsup.config.ts
+.claude/
+.git/
+node_modules/

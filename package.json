@@ -1,0 +1,53 @@
+{
+  "name": "@matt-long-plux/hostaway-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the Hostaway vacation rental PMS API",
+  "main": "dist/index.cjs",
+  "bin": {
+    "hostaway-mcp": "dist/index.cjs"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --dts",
+    "dev": "tsx src/index.ts",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "mcp",
+    "hostaway",
+    "vacation-rental",
+    "airbnb",
+    "property-management",
+    "model-context-protocol",
+    "claude",
+    "ai-assistant",
+    "pms"
+  ],
+  "author": "Matt Long <matt@plux.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattlong-plux/hostaway-mcp.git"
+  },
+  "homepage": "https://github.com/mattlong-plux/hostaway-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/mattlong-plux/hostaway-mcp/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
