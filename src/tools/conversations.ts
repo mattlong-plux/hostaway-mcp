@@ -1,4 +1,4 @@
-import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError } from '../hostaway/client.js'
+import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError, validateId } from '../hostaway/client.js'
 import type { Conversation, Message, ToolDefinition } from '../hostaway/types.js'
 
 export const conversationTools: ToolDefinition[] = [
@@ -46,11 +46,12 @@ export const conversationTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
+        const id = validateId(args.conversationId, 'conversationId')
         const messages = await hostawayRequest<Message[]>(
           'GET',
-          `/conversations/${args.conversationId}/messages`
+          `/conversations/${id}/messages`
         )
-        return toolResult({ conversationId: args.conversationId, messageCount: messages.length, messages })
+        return toolResult({ conversationId: id, messageCount: messages.length, messages })
       } catch (error) {
         return toolError(error)
       }
@@ -71,12 +72,20 @@ export const conversationTools: ToolDefinition[] = [
     handler: async (args) => {
       if (isReadOnly()) return readOnlyError()
       try {
-        const result = await hostawayRequest<Message>(
+        const id = validateId(args.conversationId, 'conversationId')
+        const message = args.message as string
+        if (!message || message.length === 0) {
+          return { content: [{ type: 'text', text: 'Message body cannot be empty.' }], isError: true }
+        }
+        if (message.length > 5000) {
+          return { content: [{ type: 'text', text: 'Message too long. Maximum length is 5000 characters.' }], isError: true }
+        }
+        await hostawayRequest<Message>(
           'POST',
-          `/conversations/${args.conversationId}/messages`,
-          { body: args.message }
+          `/conversations/${id}/messages`,
+          { body: message }
         )
-        return toolResult({ success: true, conversationId: args.conversationId, messageSent: args.message })
+        return toolResult({ success: true, conversationId: id, messageSent: message })
       } catch (error) {
         return toolError(error)
       }

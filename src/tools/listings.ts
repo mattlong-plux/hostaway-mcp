@@ -1,4 +1,4 @@
-import { hostawayRequest, toolResult, toolError } from '../hostaway/client.js'
+import { hostawayRequest, toolResult, toolError, validateId } from '../hostaway/client.js'
 import type { Listing, CustomFieldValue, ToolDefinition } from '../hostaway/types.js'
 
 export const listingTools: ToolDefinition[] = [
@@ -52,7 +52,8 @@ export const listingTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
-        const listing = await hostawayRequest<Listing>('GET', `/listings/${args.listingId}`)
+        const id = validateId(args.listingId, 'listingId')
+        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`)
         return toolResult(listing)
       } catch (error) {
         return toolError(error)
@@ -72,9 +73,10 @@ export const listingTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
+        const id = validateId(args.listingId, 'listingId')
         const fields = await hostawayRequest<CustomFieldValue[]>(
           'GET',
-          `/listings/${args.listingId}/customFieldValues`
+          `/listings/${id}/customFieldValues`
         )
 
         // Transform array to readable map

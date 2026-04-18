@@ -9,7 +9,10 @@ let cachedToken: TokenData | null = null
 
 function getCacheTtl(): number {
   const envTtl = process.env.HOSTAWAY_CACHE_TTL
-  return envTtl ? parseInt(envTtl, 10) : 240
+  if (!envTtl) return 240
+  const parsed = parseInt(envTtl, 10)
+  if (isNaN(parsed) || parsed < 1) return 240
+  return parsed
 }
 
 export async function getAccessToken(): Promise<string> {

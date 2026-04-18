@@ -1,4 +1,4 @@
-import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError } from '../hostaway/client.js'
+import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError, validateId } from '../hostaway/client.js'
 import { CHANNEL_NAMES, type Reservation, type ToolDefinition } from '../hostaway/types.js'
 
 export const reservationTools: ToolDefinition[] = [
@@ -58,9 +58,10 @@ export const reservationTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
+        const id = validateId(args.reservationId, 'reservationId')
         const reservation = await hostawayRequest<Reservation>(
           'GET',
-          `/reservations/${args.reservationId}`
+          `/reservations/${id}`
         )
         reservation.channelName = CHANNEL_NAMES[reservation.channelId] || `Channel ${reservation.channelId}`
         return toolResult(reservation)
@@ -84,9 +85,10 @@ export const reservationTools: ToolDefinition[] = [
     handler: async (args) => {
       if (isReadOnly()) return readOnlyError()
       try {
+        const id = validateId(args.reservationId, 'reservationId')
         await hostawayRequest<Reservation>(
           'PUT',
-          `/reservations/${args.reservationId}`,
+          `/reservations/${id}`,
           { hostNote: args.hostNote }
         )
         return toolResult({ success: true, reservationId: args.reservationId, hostNote: args.hostNote })
@@ -110,9 +112,11 @@ export const reservationTools: ToolDefinition[] = [
         let allReservations: Reservation[] = []
         let offset = 0
         const limit = 100
+        const MAX_PAGES = 20
+        let truncated = false
 
-        // Fetch all pages
-        while (true) {
+        // Fetch all pages (bounded)
+        for (let page = 0; page < MAX_PAGES; page++) {
           const batch = await hostawayRequest<Reservation[]>(
             'GET',
             '/reservations',
@@ -122,6 +126,7 @@ export const reservationTools: ToolDefinition[] = [
           allReservations = allReservations.concat(batch)
           if (batch.length < limit) break
           offset += limit
+          if (page === MAX_PAGES - 1) truncated = true
         }
 
         // Group by listing
@@ -140,7 +145,11 @@ export const reservationTools: ToolDefinition[] = [
           })
         }
 
-        return toolResult({ totalReservations: allReservations.length, byProperty: grouped })
+        return toolResult({
+          totalReservations: allReservations.length,
+          byProperty: grouped,
+          ...(truncated && { warning: `Results truncated at ${MAX_PAGES * limit} reservations. Narrow your date range for complete data.` }),
+        })
       } catch (error) {
         return toolError(error)
       }

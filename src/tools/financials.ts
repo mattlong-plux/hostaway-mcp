@@ -1,4 +1,4 @@
-import { hostawayRequest, toolResult, toolError } from '../hostaway/client.js'
+import { hostawayRequest, toolResult, toolError, validateId } from '../hostaway/client.js'
 import { CHANNEL_NAMES, type Reservation, type ToolDefinition } from '../hostaway/types.js'
 
 export const financialTools: ToolDefinition[] = [
@@ -14,7 +14,8 @@ export const financialTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
-        const r = await hostawayRequest<Reservation>('GET', `/reservations/${args.reservationId}`)
+        const id = validateId(args.reservationId, 'reservationId')
+        const r = await hostawayRequest<Reservation>('GET', `/reservations/${id}`)
 
         // Parse money array for detailed breakdown
         const moneyMap: Record<string, number> = {}
@@ -59,10 +60,12 @@ export const financialTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
-        // Fetch all reservations in range (paginated)
+        // Fetch all reservations in range (paginated, bounded)
         let allReservations: Reservation[] = []
         let offset = 0
         const limit = 100
+        const MAX_PAGES = 20
+        let truncated = false
         const params: Record<string, unknown> = {
           arrivalDateFrom: args.dateFrom,
           arrivalDateTo: args.dateTo,
@@ -70,12 +73,13 @@ export const financialTools: ToolDefinition[] = [
         }
         if (args.listingId) params.listingMapId = args.listingId
 
-        while (true) {
+        for (let page = 0; page < MAX_PAGES; page++) {
           params.offset = offset
           const batch = await hostawayRequest<Reservation[]>('GET', '/reservations', undefined, params)
           allReservations = allReservations.concat(batch)
           if (batch.length < limit) break
           offset += limit
+          if (page === MAX_PAGES - 1) truncated = true
         }
 
         // Filter out cancelled
@@ -129,6 +133,7 @@ export const financialTools: ToolDefinition[] = [
             totalPayout: Math.round(l.totalPayout * 100) / 100,
             cleaningFees: Math.round(l.cleaningFees * 100) / 100,
           })),
+          ...(truncated && { warning: `Results truncated at ${MAX_PAGES * limit} reservations. Narrow your date range for complete data.` }),
         })
       } catch (error) {
         return toolError(error)
@@ -154,6 +159,8 @@ export const financialTools: ToolDefinition[] = [
         let allReservations: Reservation[] = []
         let offset = 0
         const limit = 100
+        const MAX_PAGES = 20
+        let truncated = false
         const params: Record<string, unknown> = {
           arrivalDateFrom: args.dateFrom,
           arrivalDateTo: args.dateTo,
@@ -161,12 +168,13 @@ export const financialTools: ToolDefinition[] = [
         }
         if (args.channelId) params.channelId = args.channelId
 
-        while (true) {
+        for (let page = 0; page < MAX_PAGES; page++) {
           params.offset = offset
           const batch = await hostawayRequest<Reservation[]>('GET', '/reservations', undefined, params)
           allReservations = allReservations.concat(batch)
           if (batch.length < limit) break
           offset += limit
+          if (page === MAX_PAGES - 1) truncated = true
         }
 
         const rows = allReservations.map((r) => ({
@@ -191,6 +199,7 @@ export const financialTools: ToolDefinition[] = [
           totalReservations: rows.length,
           totalPayout: Math.round(totalPayout * 100) / 100,
           rows,
+          ...(truncated && { warning: `Results truncated at ${MAX_PAGES * limit} reservations. Narrow your date range for complete data.` }),
         })
       } catch (error) {
         return toolError(error)

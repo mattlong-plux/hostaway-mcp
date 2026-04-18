@@ -29,6 +29,8 @@ process.stderr.write(`
 const readOnly = process.env.HOSTAWAY_READ_ONLY === 'true'
 if (readOnly) {
   process.stderr.write('  Mode: READ-ONLY (write tools disabled)\n\n')
+} else {
+  process.stderr.write('  WARNING: Write tools are ENABLED. Set HOSTAWAY_READ_ONLY=true to disable.\n\n')
 }
 
 startServer().catch((error) => {

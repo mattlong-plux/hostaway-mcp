@@ -1,4 +1,4 @@
-import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError } from '../hostaway/client.js'
+import { hostawayRequest, isReadOnly, readOnlyError, toolResult, toolError, validateId } from '../hostaway/client.js'
 import type { CalendarDay, GapNight, ToolDefinition } from '../hostaway/types.js'
 
 export const calendarTools: ToolDefinition[] = [
@@ -16,6 +16,7 @@ export const calendarTools: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
+        const listingId = validateId(args.listingId, 'listingId')
         if (!isValidDate(args.startDate as string) || !isValidDate(args.endDate as string)) {
           return {
             content: [{ type: 'text', text: 'Invalid date format. Please use YYYY-MM-DD.' }],
@@ -24,11 +25,11 @@ export const calendarTools: ToolDefinition[] = [
         }
         const calendar = await hostawayRequest<CalendarDay[]>(
           'GET',
-          `/listings/${args.listingId}/calendar`,
+          `/listings/${listingId}/calendar`,
           undefined,
           { startDate: args.startDate, endDate: args.endDate }
         )
-        return toolResult({ listingId: args.listingId, days: calendar })
+        return toolResult({ listingId, days: calendar })
       } catch (error) {
         return toolError(error)
       }
@@ -57,7 +58,7 @@ export const calendarTools: ToolDefinition[] = [
           (args.endDate as string) ||
           new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         const maxGap = (args.maxGapLength as number) || 3
-        const listingId = args.listingId as number
+        const listingId = validateId(args.listingId, 'listingId')
 
         const calendar = await hostawayRequest<CalendarDay[]>(
           'GET',
@@ -125,6 +126,7 @@ export const calendarTools: ToolDefinition[] = [
     handler: async (args) => {
       if (isReadOnly()) return readOnlyError()
       try {
+        const listingId = validateId(args.listingId, 'listingId')
         if (!isValidDate(args.startDate as string) || !isValidDate(args.endDate as string)) {
           return {
             content: [{ type: 'text', text: 'Invalid date format. Please use YYYY-MM-DD.' }],
@@ -139,10 +141,10 @@ export const calendarTools: ToolDefinition[] = [
 
         await hostawayRequest<unknown>(
           'POST',
-          `/listings/${args.listingId}/calendar`,
+          `/listings/${listingId}/calendar`,
           payload
         )
-        return toolResult({ success: true, listingId: args.listingId, ...payload })
+        return toolResult({ success: true, listingId, ...payload })
       } catch (error) {
         return toolError(error)
       }
@@ -163,11 +165,13 @@ export const calendarTools: ToolDefinition[] = [
     handler: async (args) => {
       if (isReadOnly()) return readOnlyError()
       try {
+        const listingId = validateId(args.listingId, 'listingId')
+        const blockId = validateId(args.calendarBlockId, 'calendarBlockId')
         await hostawayRequest<unknown>(
           'DELETE',
-          `/listings/${args.listingId}/calendar/${args.calendarBlockId}`
+          `/listings/${listingId}/calendar/${blockId}`
         )
-        return toolResult({ success: true, deleted: args.calendarBlockId })
+        return toolResult({ success: true, deleted: blockId })
       } catch (error) {
         return toolError(error)
       }

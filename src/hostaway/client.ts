@@ -71,3 +71,11 @@ export function toolError(error: unknown): { content: Array<{ type: string; text
     isError: true,
   }
 }
+
+export function validateId(value: unknown, name: string): number {
+  const num = Number(value)
+  if (!Number.isInteger(num) || num <= 0) {
+    throw new RangeError(`Invalid ${name}: must be a positive integer.`)
+  }
+  return num
+}
