@@ -6,17 +6,22 @@
 
 An open-source [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that connects AI assistants like Claude Desktop, Claude Code, and Cursor to the [Hostaway](https://www.hostaway.com) property management API. Query reservations, listings, calendars, financials, and guest conversations using natural language.
 
-## Prerequisites
+## Quick Start
 
-- **Node.js 18+**
-- A **Hostaway account** with API credentials
-- Your **Account ID** and **Client Secret** — find these in your Hostaway dashboard under **Settings > API**
+1. Get your **Account ID** and **Client Secret** from your Hostaway dashboard under **Settings > API**
+2. Make sure you have **Node.js 18+** installed
+3. Pick your AI client below and add the config — no cloning or building required
 
-## Installation
+## Setup
 
-### Claude Desktop
+### Claude Desktop (Mac & Windows)
 
-Add this to your Claude Desktop config file (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+Open your Claude Desktop config file:
+
+- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+Add the following (merge with existing `mcpServers` if you have other servers configured):
 
 ```json
 {
@@ -37,7 +42,35 @@ Restart Claude Desktop and you're ready to go.
 
 ### Claude Code
 
-Add the server to your project's `.mcp.json`:
+**Option 1 — CLI command (quickest):**
+
+```bash
+claude mcp add hostaway \
+  -e HOSTAWAY_ACCOUNT_ID=YOUR_ACCOUNT_ID \
+  -e HOSTAWAY_CLIENT_SECRET=YOUR_CLIENT_SECRET \
+  -- npx -y @matt-long-plux/hostaway-mcp
+```
+
+**Option 2 — `.mcp.json` in your project root** (good for sharing with teammates):
+
+```json
+{
+  "mcpServers": {
+    "hostaway": {
+      "command": "npx",
+      "args": ["-y", "@matt-long-plux/hostaway-mcp"],
+      "env": {
+        "HOSTAWAY_ACCOUNT_ID": "YOUR_ACCOUNT_ID",
+        "HOSTAWAY_CLIENT_SECRET": "YOUR_CLIENT_SECRET"
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+Add the same config to your project's `.cursor/mcp.json`, or go to **Cursor Settings > MCP Servers > Add Server** and paste:
 
 ```json
 {
