@@ -17,6 +17,7 @@ export interface Listing {
   city: string
   countryCode: string
   isArchived: boolean
+  listingImages?: ListingImage[]
   customFieldValues?: CustomFieldValue[]
   [key: string]: unknown
 }
