@@ -87,6 +87,22 @@ Add the same config to your project's `.cursor/mcp.json`, or go to **Cursor Sett
 }
 ```
 
+## Updating
+
+If you installed a previous version via `npx`, your system may have a cached copy. To update to the latest release:
+
+```bash
+npx clear-npx-cache
+```
+
+Then restart your AI client (Claude Desktop, Cursor, etc.). The next launch will automatically pull the latest version.
+
+Alternatively, you can pin `@latest` in your config to always fetch the newest version on each restart:
+
+```json
+"args": ["-y", "@matt-long-plux/hostaway-mcp@latest"]
+```
+
 ## Tools Reference
 
 ### Reservations
