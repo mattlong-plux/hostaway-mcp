@@ -1,5 +1,5 @@
 import { hostawayRequest, toolResult, toolError, validateId } from '../hostaway/client.js'
-import type { Listing, CustomFieldValue, ToolDefinition } from '../hostaway/types.js'
+import type { Listing, ListingImage, CustomFieldValue, ToolDefinition } from '../hostaway/types.js'
 
 export const listingTools: ToolDefinition[] = [
   {
@@ -53,8 +53,39 @@ export const listingTools: ToolDefinition[] = [
     handler: async (args) => {
       try {
         const id = validateId(args.listingId, 'listingId')
-        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`)
+        const [listing, images] = await Promise.all([
+          hostawayRequest<Listing>('GET', `/listings/${id}`),
+          hostawayRequest<ListingImage[]>('GET', `/listings/${id}/images`).catch(() => []),
+        ])
+
+        // Enrich the listing with images from the dedicated endpoint
+        if (images.length > 0) {
+          listing.listingImages = images
+        }
+
         return toolResult(listing)
+      } catch (error) {
+        return toolError(error)
+      }
+    },
+  },
+
+  {
+    name: 'get_listing_images',
+    description:
+      'Get all photos/images for a listing. Returns image URLs, captions, and sort order.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        listingId: { type: 'number', description: 'Listing ID' },
+      },
+      required: ['listingId'],
+    },
+    handler: async (args) => {
+      try {
+        const id = validateId(args.listingId, 'listingId')
+        const images = await hostawayRequest<ListingImage[]>('GET', `/listings/${id}/images`)
+        return toolResult({ listingId: id, count: images.length, images })
       } catch (error) {
         return toolError(error)
       }

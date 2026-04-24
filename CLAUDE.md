@@ -95,7 +95,7 @@ All requests include `Authorization: Bearer {token}` and `Cache-control: no-cach
 
 ---
 
-## Tools (17 total)
+## Tools (18 total)
 
 ### Reservations (`src/tools/reservations.ts`)
 
@@ -111,7 +111,8 @@ All requests include `Authorization: Bearer {token}` and `Cache-control: no-cach
 | Tool | Description | Key Params | Write? |
 |---|---|---|---|
 | `list_listings` | All active listings with metadata | `includeArchived` | No |
-| `get_listing` | Full listing details | `listingId` (required) | No |
+| `get_listing` | Full listing details (includes images) | `listingId` (required) | No |
+| `get_listing_images` | All photos/images for a listing | `listingId` (required) | No |
 | `get_listing_custom_fields` | Custom field values as name-value map | `listingId` (required) | No |
 
 ### Calendar (`src/tools/calendar.ts`)

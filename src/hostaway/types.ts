@@ -118,6 +118,16 @@ export const CHANNEL_NAMES: Record<number, string> = {
   2027: 'TripAdvisor',
 }
 
+// Listing image
+export interface ListingImage {
+  id: number
+  listingId: number
+  url: string
+  caption?: string
+  sortOrder?: number
+  [key: string]: unknown
+}
+
 // Gap night analysis result
 export interface GapNight {
   startDate: string
