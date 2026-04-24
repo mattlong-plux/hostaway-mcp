@@ -53,7 +53,7 @@ export const listingTools: ToolDefinition[] = [
     handler: async (args) => {
       try {
         const id = validateId(args.listingId, 'listingId')
-        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`)
+        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`, undefined, { includeResources: 1 })
         return toolResult(listing)
       } catch (error) {
         return toolError(error)
@@ -75,7 +75,7 @@ export const listingTools: ToolDefinition[] = [
     handler: async (args) => {
       try {
         const id = validateId(args.listingId, 'listingId')
-        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`)
+        const listing = await hostawayRequest<Listing>('GET', `/listings/${id}`, undefined, { includeResources: 1 })
         const images = listing.listingImages ?? []
         return toolResult({ listingId: id, count: images.length, images })
       } catch (error) {
